@@ -98,7 +98,7 @@ class UIManager {
             this.closeModal();
         });
 
-        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+        const confirmCancelBtn = document.getElementById('confirmCancel');
         if (confirmCancelBtn) confirmCancelBtn.addEventListener('click', () => {
             this.closeConfirmModal();
         });
@@ -109,16 +109,10 @@ class UIManager {
         });
 
         // Settings save button
-        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-        if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', () => {
-            this.saveSettings();
-        });
+        // Settings are saved via the `settingsForm` submit handler in `app.js`.
+        // Keep explicit button binding out to avoid duplicate handlers when element IDs differ.
 
-        // Profile save button
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
-        if (saveProfileBtn) saveProfileBtn.addEventListener('click', () => {
-            this.saveProfile();
-        });
+        // Profile form submit is handled by the form's submit event (see app.js)
 
         // Change avatar button
         const changeAvatarBtn = document.getElementById('changeAvatarBtn');
@@ -126,8 +120,8 @@ class UIManager {
             this.changeAvatar();
         });
 
-        // Close profile button
-        const closeProfileBtn = document.getElementById('closeProfileBtn');
+        // Close profile button (ID in markup: 'profileClose')
+        const closeProfileBtn = document.getElementById('profileClose');
         if (closeProfileBtn) closeProfileBtn.addEventListener('click', () => {
             this.closeProfile();
         });
@@ -196,7 +190,7 @@ class UIManager {
             if (analyticsSection) analyticsSection.scrollIntoView({ behavior: 'smooth' });
             if (this.analyticsManager) this.analyticsManager.updateCharts();
         } else if (view === 'dashboard') {
-            const dashboardSection = document.getElementById('dashboardSection');
+            const dashboardSection = document.querySelector('.container') || document.body;
             if (dashboardSection) dashboardSection.scrollIntoView({ behavior: 'smooth' });
         }
     }
@@ -507,8 +501,8 @@ class UIManager {
                         <label for="editGoalTarget">Target Days/Week</label>
                         <select id="editGoalTarget">
                             ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                                <option value="${num}" ${goal.target === num ? 'selected' : ''}>
-                                    ${num === 7 ? 'Daily' : num + ' days'}
+                                    <option value="${num}" ${goal.goal && goal.goal.target === num ? 'selected' : ''}>
+                                        ${num === 7 ? 'Daily' : num + ' days'}
                                 </option>
                             `).join('')}
                         </select>
@@ -543,11 +537,15 @@ class UIManager {
             return;
         }
 
+        const existingGoal = this.goalManager.goals.find(g => g.id === goalId) || {};
         const updatedGoal = this.goalManager.updateGoal(goalId, {
             name,
             description,
             category,
-            target: parseInt(target)
+            goal: {
+                ...(existingGoal.goal || {}),
+                target: parseInt(target)
+            }
         });
 
         if (updatedGoal) {
@@ -803,7 +801,15 @@ class UIManager {
         if (confirmTitle && confirmMessage && confirmAction && confirmModal) {
             confirmTitle.textContent = title;
             confirmMessage.textContent = message;
-            confirmAction.onclick = action;
+            // Wrap action so the modal closes after the action runs and errors are handled
+            confirmAction.onclick = () => {
+                try {
+                    if (typeof action === 'function') action();
+                } catch (err) {
+                    console.error('Confirm action error:', err);
+                }
+                this.closeConfirmModal();
+            };
             confirmModal.classList.add('open');
         }
     }
