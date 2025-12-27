@@ -27,13 +27,6 @@ No build step is required - all assets are static.
 - `js/ui.js` - `UIManager` wiring, rendering, modals, and event handling.
 - `js/app.js` - Application bootstrap and orchestration.
 
-## Notable Fixes (applied)
-
-- Fixed DOM ID mismatches between `index.html` and `js/ui.js` (confirm cancel, profile close).
-- Ensured confirm modal closes after the confirmed action and wrapped the action in a safe try/catch.
-- Corrected editing flow to update nested `goal.target` (was incorrectly using top-level `goal.target`).
-- Made dashboard view scrolling robust when a specific element ID is not present.
-
 ## Usage / Features
 
 - Create / edit / delete goals with category, priority, and weekly target.
@@ -47,7 +40,7 @@ No build step is required - all assets are static.
 - Chart.js is included via CDN in `index.html`. If you want an offline copy, download Chart.js and update the script tag.
 - The app is client-only and stores everything in `localStorage` under the key `goaltracker_pro_data`.
 
-## Manual Smoke Tests (recommended)
+## Manual Smoke Tests
 
 1. Open `index.html` in browser.
 2. Create a new goal via the 'Create New Goal' form.
