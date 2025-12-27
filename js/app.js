@@ -123,8 +123,43 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         app.ui.saveSettings();
     });
+
+    // Add profile modal handlers
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        app.ui.saveProfile();
+    });
     
-    // Add reset settings button handler
+    const profileClose = document.getElementById('profileClose');
+    if (profileClose) profileClose.addEventListener('click', () => {
+        app.ui.closeProfile();
+    });
+    
+    const profileCancel = document.getElementById('profileCancel');
+    if (profileCancel) profileCancel.addEventListener('click', () => {
+        app.ui.closeProfile();
+    });
+    
+    const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+    if (changeAvatarBtn) changeAvatarBtn.addEventListener('click', () => {
+        app.ui.changeAvatar();
+    });
+    
+    // Open profile when clicking user avatar in navigation
+    const navUserAvatar = document.getElementById('navUserAvatar');
+    if (navUserAvatar) {
+        navUserAvatar.addEventListener('click', () => {
+            app.ui.openProfile();
+        });
+        navUserAvatar.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                app.ui.openProfile();
+            }
+        });
+    }
+    
     const resetSettingsBtn = document.getElementById('resetSettingsBtn');
     if (resetSettingsBtn) resetSettingsBtn.addEventListener('click', () => {
         app.ui.openConfirmModal(

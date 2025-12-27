@@ -699,4 +699,114 @@ class UIManager {
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
     }
+
+    // Open user profile modal
+    openProfile() {
+        const data = this.goalManager.storage.load();
+        const user = data.user || {};
+        const stats = this.goalManager.getStats();
+        
+        // Fill in profile form with current data
+        document.getElementById('profileName').value = user.name || '';
+        document.getElementById('profileEmail').value = user.email || '';
+        document.getElementById('profileRole').value = user.role || '';
+        document.getElementById('profileBio').value = user.bio || '';
+        document.getElementById('profileLocation').value = user.location || '';
+        document.getElementById('profilePhone').value = user.phone || '';
+        document.getElementById('profileTimezone').value = user.timezone || '';
+        
+        // Update profile avatar with initials
+        const initials = this.getInitials(user.name || 'PU');
+        document.getElementById('profileAvatar').textContent = initials;
+        document.getElementById('navUserAvatar').textContent = initials;
+        
+        // Update profile statistics
+        document.getElementById('profileTotalGoals').textContent = stats.totalGoals;
+        document.getElementById('profileCompletionRate').textContent = stats.completionRate + '%';
+        
+        // Calculate days active
+        const created = new Date(data.created);
+        const now = new Date();
+        const daysActive = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+        document.getElementById('profileDaysActive').textContent = daysActive;
+        
+        this.openModal('profileModal');
+    }
+
+    // Save user profile
+    saveProfile() {
+        const name = document.getElementById('profileName').value.trim();
+        const email = document.getElementById('profileEmail').value.trim();
+        const role = document.getElementById('profileRole').value.trim();
+        const bio = document.getElementById('profileBio').value.trim();
+        const location = document.getElementById('profileLocation').value.trim();
+        const phone = document.getElementById('profilePhone').value.trim();
+        const timezone = document.getElementById('profileTimezone').value.trim();
+        
+        // Validate required fields
+        if (!name || !email) {
+            this.showNotification('Please fill in required fields (Name and Email)', 'warning');
+            return;
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            this.showNotification('Please enter a valid email address', 'warning');
+            return;
+        }
+        
+        // Update user data in storage
+        const data = this.goalManager.storage.load();
+        data.user = {
+            name,
+            email,
+            role,
+            bio,
+            location,
+            phone,
+            timezone,
+            avatar: this.getInitials(name),
+            updatedAt: new Date().toISOString()
+        };
+        
+        this.goalManager.storage.save(data);
+        
+        // Update UI
+        this.updateUserInfo();
+        
+        this.showNotification('Profile saved successfully!', 'success');
+        this.closeModal();
+    }
+
+    // Change avatar (show initials customization)
+    changeAvatar() {
+        const name = document.getElementById('profileName').value.trim();
+        if (!name) {
+            this.showNotification('Please enter your name first', 'warning');
+            return;
+        }
+        
+        const initials = this.getInitials(name);
+        document.getElementById('profileAvatar').textContent = initials;
+        this.showNotification(`Avatar updated to "${initials}"`, 'info');
+    }
+
+    // Get initials from name
+    getInitials(name) {
+        if (!name) return 'PU';
+        const parts = name.trim().split(' ');
+        
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        } else {
+            return name.substring(0, 2).toUpperCase();
+        }
+    }
+
+    // Close profile modal
+    closeProfile() {
+        this.closeModal();
+    }
+
 }

@@ -38,7 +38,7 @@
                     <div class="user-name" id="navUserName">Professional User</div>
                     <div class="user-role">Premium Member</div>
                 </div>
-                <div class="user-avatar" id="navUserAvatar" role="button" tabindex="0" aria-label="User menu">
+                <div class="user-avatar" id="navUserAvatar" role="button" tabindex="0" aria-label="Open user profile">
                     PU
                 </div>
             </div>
@@ -280,6 +280,113 @@
                 <div class="confirm-actions">
                     <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
                     <button class="btn btn-danger" id="confirmAction">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="profileModal">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-circle"></i> User Profile</h3>
+                <button class="modal-close" id="profileClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar-section">
+                            <div class="profile-avatar" id="profileAvatar">PU</div>
+                            <button type="button" class="btn btn-sm" id="changeAvatarBtn">
+                                <i class="fas fa-camera"></i> Change Avatar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="profileName">
+                                <i class="fas fa-user"></i> Full Name
+                            </label>
+                            <input type="text" id="profileName" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileEmail">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <input type="email" id="profileEmail" placeholder="your.email@example.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileRole">
+                                <i class="fas fa-briefcase"></i> Role/Title
+                            </label>
+                            <input type="text" id="profileRole" placeholder="e.g., Software Developer, Student, Manager">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileBio">
+                                <i class="fas fa-align-left"></i> Bio
+                            </label>
+                            <textarea id="profileBio" placeholder="Tell us about yourself..." rows="4"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileLocation">
+                                <i class="fas fa-map-marker-alt"></i> Location
+                            </label>
+                            <input type="text" id="profileLocation" placeholder="City, Country">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profilePhone">
+                                <i class="fas fa-phone"></i> Phone Number
+                            </label>
+                            <input type="tel" id="profilePhone" placeholder="Your contact number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileTimezone">
+                                <i class="fas fa-globe"></i> Timezone
+                            </label>
+                            <select id="profileTimezone">
+                                <option value="">Auto-detect</option>
+                                <option value="America/New_York">Eastern Time (ET)</option>
+                                <option value="America/Chicago">Central Time (CT)</option>
+                                <option value="America/Denver">Mountain Time (MT)</option>
+                                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                <option value="Europe/London">London (GMT)</option>
+                                <option value="Europe/Paris">Central European Time (CET)</option>
+                                <option value="Asia/Dubai">Dubai (GST)</option>
+                                <option value="Asia/Kolkata">India Standard Time (IST)</option>
+                                <option value="Asia/Shanghai">China Standard Time (CST)</option>
+                                <option value="Asia/Tokyo">Japan Standard Time (JST)</option>
+                                <option value="Australia/Sydney">Australian Eastern (AEDT)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="stat-value" id="profileTotalGoals">0</div>
+                                <div class="stat-label">Total Goals</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="stat-value" id="profileCompletionRate">0%</div>
+                                <div class="stat-label">Completion Rate</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="stat-value" id="profileDaysActive">0</div>
+                                <div class="stat-label">Days Active</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="profileCancel">Cancel</button>
+                            <button type="submit" class="btn btn-add">
+                                <i class="fas fa-save"></i> Save Profile
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
