@@ -1,4 +1,4 @@
-# GoalTracker Pro
+# GoalTracker
 
 Lightweight, client-side goal & habit tracker with analytics (vanilla JS).
 
@@ -15,17 +15,17 @@ To run locally:
 1. Clone or download the repository.
 2. Open `index.html` in your browser (double-click or serve via a simple static server).
 
-No build step is required — all assets are static.
+No build step is required - all assets are static.
 
 ## Files & Structure
 
-- `index.html` — Main UI markup and modal templates.
-- `css/main.css`, `css/dashboard.css` — Styles for layout and components.
-- `js/storage.js` — `StorageManager` handles `localStorage`, import/export, migration.
-- `js/goals.js` — `GoalManager` for CRUD, streaks, milestones, stats.
-- `js/analytics.js` — `AnalyticsManager` for charts (Chart.js required).
-- `js/ui.js` — `UIManager` wiring, rendering, modals, and event handling.
-- `js/app.js` — Application bootstrap and orchestration.
+- `index.html` - Main UI markup and modal templates.
+- `css/main.css`, `css/dashboard.css` - Styles for layout and components.
+- `js/storage.js` - `StorageManager` handles `localStorage`, import/export, migration.
+- `js/goals.js` - `GoalManager` for CRUD, streaks, milestones, stats.
+- `js/analytics.js` - `AnalyticsManager` for charts (Chart.js required).
+- `js/ui.js` - `UIManager` wiring, rendering, modals, and event handling.
+- `js/app.js` - Application bootstrap and orchestration.
 
 ## Notable Fixes (applied)
 
@@ -52,7 +52,7 @@ No build step is required — all assets are static.
 1. Open `index.html` in browser.
 2. Create a new goal via the 'Create New Goal' form.
 3. Mark days as completed in the goal card; verify streak updates and progress bar.
-4. Edit a goal (`Edit` button) and change target days — ensure progress and analytics reflect changes.
+4. Edit a goal (`Edit` button) and change target days - ensure progress and analytics reflect changes.
 5. Use `Export Data` to download JSON, then `Import Backup` to restore it.
 6. Open the user profile (top-right avatar), edit and save; verify nav avatar initials update.
 
