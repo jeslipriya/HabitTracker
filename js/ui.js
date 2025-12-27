@@ -93,9 +93,43 @@ class UIManager {
             this.closeModal();
         });
 
-        const confirmCancel = document.getElementById('confirmCancel');
-        if (confirmCancel) confirmCancel.addEventListener('click', () => {
+        const goalCancelBtn = document.getElementById('goalCancelBtn');
+        if (goalCancelBtn) goalCancelBtn.addEventListener('click', () => {
+            this.closeModal();
+        });
+
+        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+        if (confirmCancelBtn) confirmCancelBtn.addEventListener('click', () => {
             this.closeConfirmModal();
+        });
+
+        const navUserAvatar = document.getElementById('navUserAvatar');
+        if (navUserAvatar) navUserAvatar.addEventListener('click', () => {
+            this.openProfile();
+        });
+
+        // Settings save button
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', () => {
+            this.saveSettings();
+        });
+
+        // Profile save button
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        if (saveProfileBtn) saveProfileBtn.addEventListener('click', () => {
+            this.saveProfile();
+        });
+
+        // Change avatar button
+        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+        if (changeAvatarBtn) changeAvatarBtn.addEventListener('click', () => {
+            this.changeAvatar();
+        });
+
+        // Close profile button
+        const closeProfileBtn = document.getElementById('closeProfileBtn');
+        if (closeProfileBtn) closeProfileBtn.addEventListener('click', () => {
+            this.closeProfile();
         });
 
         // Keyboard shortcuts
@@ -109,6 +143,42 @@ class UIManager {
                 this.closeConfirmModal();
                 this.closeSettings();
             }
+        });
+
+        // Goal action buttons (event delegation)
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.goal-action-btn');
+            if (!btn) return;
+
+            const goalId = parseInt(btn.dataset.goalId);
+            const action = btn.dataset.action;
+
+            try {
+                switch (action) {
+                    case 'toggle':
+                        this.toggleGoalStatus(goalId);
+                        break;
+                    case 'edit':
+                        this.editGoal(goalId);
+                        break;
+                    case 'delete':
+                        this.deleteGoal(goalId);
+                        break;
+                }
+            } catch (error) {
+                console.error(`Error performing action '${action}' on goal ${goalId}:`, error);
+                this.showNotification('Error performing action', 'error');
+            }
+        });
+
+        // Add event listener for day completion toggling
+        document.addEventListener('click', (e) => {
+            const dayBtn = e.target.closest('.day:not(.future)');
+            if (!dayBtn) return;
+
+            const goalId = parseInt(dayBtn.dataset.goalId);
+            const date = dayBtn.dataset.date;
+            this.toggleDayCompletion(goalId, date);
         });
     }
 
@@ -125,14 +195,19 @@ class UIManager {
             const analyticsSection = document.getElementById('analyticsSection');
             if (analyticsSection) analyticsSection.scrollIntoView({ behavior: 'smooth' });
             if (this.analyticsManager) this.analyticsManager.updateCharts();
+        } else if (view === 'dashboard') {
+            const dashboardSection = document.getElementById('dashboardSection');
+            if (dashboardSection) dashboardSection.scrollIntoView({ behavior: 'smooth' });
         }
     }
 
     // Update year display
     updateYear() {
         const year = new Date().getFullYear();
-        document.getElementById('currentYear').textContent = year;
-        document.getElementById('footerYear').textContent = year;
+        const currentYearEl = document.getElementById('currentYear');
+        const footerYearEl = document.getElementById('footerYear');
+        if (currentYearEl) currentYearEl.textContent = year;
+        if (footerYearEl) footerYearEl.textContent = year;
     }
 
     // Update user info
@@ -143,7 +218,7 @@ class UIManager {
         const avatarEl = document.getElementById('navUserAvatar');
         if (user) {
             if (nameEl) nameEl.textContent = user.name || '';
-            if (avatarEl) avatarEl.textContent = user.avatar || '';
+            if (avatarEl) avatarEl.textContent = this.getInitials(user.name || '');
         }
     }
 
@@ -152,13 +227,22 @@ class UIManager {
         this.renderStats();
         this.renderGoals();
         this.renderUpcomingDeadlines();
-        this.analyticsManager.initialize();
+        if (this.analyticsManager && this.analyticsManager.initialize) {
+            this.analyticsManager.initialize();
+        }
     }
 
     // Render statistics
     renderStats() {
-        const stats = this.goalManager.getStats();
+        const stats = this.goalManager.getStats ? this.goalManager.getStats() : {
+            totalGoals: 0,
+            completionRate: 0,
+            longestStreak: 0,
+            totalCompletedDays: 0,
+            activeGoals: 0
+        };
         const container = document.getElementById('statsContainer');
+        if (!container) return;
         
         const statCards = [
             {
@@ -208,27 +292,33 @@ class UIManager {
 
     // Render goals
     renderGoals() {
-        const goals = this.goalManager.getGoals(this.currentFilter);
+        const goals = this.goalManager.getGoals ? this.goalManager.getGoals(this.currentFilter) : [];
         const container = document.getElementById('goalsContainer');
+        if (!container) return;
         
+        const emptyState = document.getElementById('emptyState');
         if (goals.length === 0) {
-            container.innerHTML = document.getElementById('emptyState').outerHTML;
+            if (emptyState) {
+                container.innerHTML = emptyState.outerHTML;
+            } else {
+                container.innerHTML = '<div class="empty-state">No goals found. Create your first goal!</div>';
+            }
             return;
         }
 
         container.innerHTML = goals.map(goal => this.createGoalCard(goal)).join('');
-        this.attachGoalEventListeners();
     }
 
     // Create goal card HTML
     createGoalCard(goal) {
-        const completion = this.goalManager.calculateCompletion(goal);
-        const weekDays = this.goalManager.getWeekDays(goal);
-        const categoryLabel = this.goalManager.categories[goal.category] || goal.category;
+        const completion = this.goalManager.calculateCompletion ? this.goalManager.calculateCompletion(goal) : 0;
+        const weekDays = this.goalManager.getWeekDays ? this.goalManager.getWeekDays(goal) : [];
+        const categories = this.goalManager.categories || {};
+        const categoryLabel = categories[goal.category] || goal.category;
         
         return `
             <div class="goal-item" data-goal-id="${goal.id}">
-                <div class="goal-priority ${goal.priority}"></div>
+                <div class="goal-priority ${goal.priority || 'medium'}"></div>
                 
                 <div class="goal-header">
                     <div>
@@ -236,13 +326,13 @@ class UIManager {
                         <span class="goal-category">${categoryLabel}</span>
                     </div>
                     <div class="goal-actions">
-                        <button class="btn btn-sm btn-secondary" onclick="app.ui.toggleGoalStatus(${goal.id})">
+                        <button class="btn btn-sm btn-secondary goal-action-btn" data-action="toggle" data-goal-id="${goal.id}" title="Toggle goal status" aria-label="Toggle ${goal.name} status">
                             <i class="fas fa-${goal.status === 'active' ? 'pause' : 'play'}"></i>
                         </button>
-                        <button class="btn btn-sm" onclick="app.ui.editGoal(${goal.id})">
+                        <button class="btn btn-sm goal-action-btn" data-action="edit" data-goal-id="${goal.id}" title="Edit goal" aria-label="Edit ${goal.name}">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="app.ui.deleteGoal(${goal.id})">
+                        <button class="btn btn-sm btn-danger goal-action-btn" data-action="delete" data-goal-id="${goal.id}" title="Delete goal" aria-label="Delete ${goal.name}">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -252,7 +342,7 @@ class UIManager {
                 
                 <div class="goal-streak">
                     <i class="fas fa-fire"></i>
-                    <span class="streak-count">${goal.streak} day streak</span>
+                    <span class="streak-count">${goal.streak || 0} day streak</span>
                 </div>
                 
                 <div class="goal-progress">
@@ -295,17 +385,6 @@ class UIManager {
         `;
     }
 
-    // Attach event listeners to goal cards
-    attachGoalEventListeners() {
-        document.querySelectorAll('.day:not(.future)').forEach(dayBtn => {
-            dayBtn.addEventListener('click', (e) => {
-                const goalId = parseInt(e.target.dataset.goalId);
-                const date = e.target.dataset.date;
-                this.toggleDayCompletion(goalId, date);
-            });
-        });
-    }
-
     // Create a new goal
     createGoal() {
         const form = document.getElementById('goalForm');
@@ -317,6 +396,11 @@ class UIManager {
 
         if (!name || !category || !target) {
             this.showNotification('Please fill in all required fields', 'warning');
+            return;
+        }
+
+        if (!this.goalManager || !this.goalManager.createGoal) {
+            this.showNotification('Goal manager not properly initialized', 'error');
             return;
         }
 
@@ -343,6 +427,11 @@ class UIManager {
 
     // Toggle day completion
     toggleDayCompletion(goalId, date) {
+        if (!this.goalManager || !this.goalManager.toggleDayCompletion) {
+            this.showNotification('Goal manager not properly initialized', 'error');
+            return;
+        }
+
         const result = this.goalManager.toggleDayCompletion(goalId, date);
         if (result) {
             this.renderGoals();
@@ -356,24 +445,45 @@ class UIManager {
 
     // Toggle goal status (active/paused)
     toggleGoalStatus(goalId) {
-        const goal = this.goalManager.goals.find(g => g.id === goalId);
-        if (!goal) return;
+        try {
+            if (!this.goalManager || !this.goalManager.goals) {
+                this.showNotification('Goal manager not properly initialized', 'error');
+                return;
+            }
 
-        goal.status = goal.status === 'active' ? 'paused' : 'active';
-        this.goalManager.save();
-        this.renderGoals();
-        this.showNotification(
-            `${goal.status === 'active' ? 'Resumed' : 'Paused'} goal "${goal.name}"`,
-            'info'
-        );
+            const goal = this.goalManager.goals.find(g => g.id === goalId);
+            if (!goal) {
+                console.error('Goal not found:', goalId);
+                this.showNotification('Goal not found', 'error');
+                return;
+            }
+
+            goal.status = goal.status === 'active' ? 'paused' : 'active';
+            this.goalManager.save();
+            this.renderGoals();
+            this.showNotification(
+                `${goal.status === 'active' ? 'Resumed' : 'Paused'} goal "${goal.name}"`,
+                'info'
+            );
+        } catch (error) {
+            console.error('Error toggling goal status:', error);
+            this.showNotification('Error toggling goal status', 'error');
+        }
     }
 
     // Edit goal
     editGoal(goalId) {
+        if (!this.goalManager || !this.goalManager.goals) {
+            this.showNotification('Goal manager not properly initialized', 'error');
+            return;
+        }
+
         const goal = this.goalManager.goals.find(g => g.id === goalId);
         if (!goal) return;
 
         const modalContent = document.getElementById('goalModalContent');
+        if (!modalContent) return;
+
         modalContent.innerHTML = `
             <form id="editGoalForm">
                 <div class="form-group">
@@ -382,13 +492,13 @@ class UIManager {
                 </div>
                 <div class="form-group">
                     <label for="editGoalDescription">Description</label>
-                    <textarea id="editGoalDescription">${this.escapeHtml(goal.description)}</textarea>
+                    <textarea id="editGoalDescription">${this.escapeHtml(goal.description || '')}</textarea>
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="editGoalCategory">Category</label>
                         <select id="editGoalCategory">
-                            ${Object.entries(this.goalManager.categories).map(([key, label]) => `
+                            ${Object.entries(this.goalManager.categories || {}).map(([key, label]) => `
                                 <option value="${key}" ${goal.category === key ? 'selected' : ''}>${label}</option>
                             `).join('')}
                         </select>
@@ -397,7 +507,7 @@ class UIManager {
                         <label for="editGoalTarget">Target Days/Week</label>
                         <select id="editGoalTarget">
                             ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                                <option value="${num}" ${goal.goal.target === num ? 'selected' : ''}>
+                                <option value="${num}" ${goal.target === num ? 'selected' : ''}>
                                     ${num === 7 ? 'Daily' : num + ' days'}
                                 </option>
                             `).join('')}
@@ -410,10 +520,13 @@ class UIManager {
             </form>
         `;
 
-        document.getElementById('editGoalForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveGoalEdit(goalId);
-        });
+        const editGoalForm = document.getElementById('editGoalForm');
+        if (editGoalForm) {
+            editGoalForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveGoalEdit(goalId);
+            });
+        }
 
         this.openModal('goalModal');
     }
@@ -425,11 +538,16 @@ class UIManager {
         const category = document.getElementById('editGoalCategory').value;
         const target = document.getElementById('editGoalTarget').value;
 
+        if (!this.goalManager || !this.goalManager.updateGoal) {
+            this.showNotification('Goal manager not properly initialized', 'error');
+            return;
+        }
+
         const updatedGoal = this.goalManager.updateGoal(goalId, {
             name,
             description,
             category,
-            goal: { target: parseInt(target) }
+            target: parseInt(target)
         });
 
         if (updatedGoal) {
@@ -441,6 +559,11 @@ class UIManager {
 
     // Delete goal with confirmation
     deleteGoal(goalId) {
+        if (!this.goalManager || !this.goalManager.goals) {
+            this.showNotification('Goal manager not properly initialized', 'error');
+            return;
+        }
+
         const goal = this.goalManager.goals.find(g => g.id === goalId);
         if (!goal) return;
 
@@ -457,9 +580,14 @@ class UIManager {
 
     // Render achievements
     renderAchievements() {
-        const filter = document.getElementById('achievementFilter').value;
-        const achievements = this.goalManager.getAchievements(filter);
+        if (!this.goalManager || !this.goalManager.getAchievements) return;
+
+        const filter = document.getElementById('achievementFilter');
+        if (!filter) return;
+
+        const achievements = this.goalManager.getAchievements(filter.value);
         const container = document.getElementById('achievementList');
+        if (!container) return;
         
         if (achievements.length === 0) {
             container.innerHTML = '<p class="text-center" style="color: var(--gray-400); padding: 20px;">No achievements yet</p>';
@@ -469,11 +597,11 @@ class UIManager {
         container.innerHTML = achievements.map(achievement => `
             <div class="achievement-item">
                 <div class="achievement-icon" style="background: ${achievement.color === 'gold' ? 'linear-gradient(135deg, var(--gold-color), #f59e0b)' : 'linear-gradient(135deg, var(--accent-color), #dc2626)'}">
-                    <i class="fas fa-${achievement.icon}"></i>
+                    <i class="fas fa-${achievement.icon || 'trophy'}"></i>
                 </div>
                 <div class="achievement-content">
-                    <div class="achievement-title">${achievement.title}</div>
-                    <div class="achievement-description">${achievement.description}</div>
+                    <div class="achievement-title">${achievement.title || ''}</div>
+                    <div class="achievement-description">${achievement.description || ''}</div>
                 </div>
             </div>
         `).join('');
@@ -482,32 +610,33 @@ class UIManager {
     // Render upcoming deadlines
     renderUpcomingDeadlines() {
         const container = document.getElementById('upcomingDeadlines');
-        const today = new Date();
-        const upcomingDays = [];
-        
-        // Generate next 7 days
-        for (let i = 1; i <= 7; i++) {
-            const date = new Date(today);
-            date.setDate(date.getDate() + i);
-            upcomingDays.push(this.goalManager.formatDate(date));
+        if (!container) return;
+
+        if (!this.goalManager || !this.goalManager.goals) {
+            container.innerHTML = '<p class="text-center" style="color: var(--gray-400); padding: 20px;">No upcoming deadlines</p>';
+            return;
         }
+
+        const today = new Date();
+        const deadlines = [];
         
         // Check for goals with upcoming milestones
-        const deadlines = [];
         this.goalManager.goals.forEach(goal => {
-            goal.milestones.forEach(milestone => {
-                if (!milestone.achieved && milestone.target) {
-                    const daysToTarget = milestone.target - goal.history.length;
-                    if (daysToTarget > 0 && daysToTarget <= 7) {
-                        deadlines.push({
-                            name: goal.name,
-                            milestone: milestone.name,
-                            daysToTarget,
-                            priority: daysToTarget <= 2 ? 'high' : daysToTarget <= 4 ? 'medium' : 'low'
-                        });
+            if (goal.milestones) {
+                goal.milestones.forEach(milestone => {
+                    if (!milestone.achieved && milestone.target) {
+                        const daysToTarget = milestone.target - (goal.history ? goal.history.length : 0);
+                        if (daysToTarget > 0 && daysToTarget <= 7) {
+                            deadlines.push({
+                                name: goal.name,
+                                milestone: milestone.name,
+                                daysToTarget,
+                                priority: daysToTarget <= 2 ? 'high' : daysToTarget <= 4 ? 'medium' : 'low'
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         });
         
         if (deadlines.length === 0) {
@@ -530,12 +659,22 @@ class UIManager {
 
     // Export data
     exportData() {
+        if (!this.goalManager || !this.goalManager.storage || !this.goalManager.storage.exportData) {
+            this.showNotification('Export functionality not available', 'error');
+            return;
+        }
+
         this.goalManager.storage.exportData();
         this.showNotification('Data exported successfully!', 'success');
     }
 
     // Generate report
     generateReport() {
+        if (!this.analyticsManager || !this.analyticsManager.generateReport) {
+            this.showNotification('Report generation not available', 'error');
+            return;
+        }
+
         const report = this.analyticsManager.generateReport();
         
         // Display report in console for now
@@ -557,21 +696,39 @@ class UIManager {
 
     // Export backup
     exportBackup() {
+        if (!this.goalManager || !this.goalManager.storage || !this.goalManager.storage.exportData) {
+            this.showNotification('Backup functionality not available', 'error');
+            return;
+        }
+
         this.goalManager.storage.exportData();
         this.showNotification('Backup exported successfully!', 'success');
     }
 
     // Open settings modal
     openSettings() {
-        const settings = this.goalManager.storage.load().settings;
+        if (!this.goalManager || !this.goalManager.storage) {
+            this.showNotification('Settings not available', 'error');
+            return;
+        }
+
+        const data = this.goalManager.storage.load();
+        const settings = data.settings || {};
         
         // Populate settings form
-        document.getElementById('themeSetting').value = settings.theme;
-        document.getElementById('weekStart').value = settings.weekStartsOn;
-        document.getElementById('enableNotifications').checked = settings.notifications;
-        document.getElementById('notificationTime').value = settings.notificationTime || '09:00';
-        document.getElementById('autoSave').checked = settings.autoSave;
-        document.getElementById('backupFrequency').value = settings.backupFrequency || 'weekly';
+        const themeSetting = document.getElementById('themeSetting');
+        const weekStart = document.getElementById('weekStart');
+        const enableNotifications = document.getElementById('enableNotifications');
+        const notificationTime = document.getElementById('notificationTime');
+        const autoSave = document.getElementById('autoSave');
+        const backupFrequency = document.getElementById('backupFrequency');
+        
+        if (themeSetting) themeSetting.value = settings.theme || 'auto';
+        if (weekStart) weekStart.value = settings.weekStartsOn || 'monday';
+        if (enableNotifications) enableNotifications.checked = settings.notifications || false;
+        if (notificationTime) notificationTime.value = settings.notificationTime || '09:00';
+        if (autoSave) autoSave.checked = settings.autoSave !== false;
+        if (backupFrequency) backupFrequency.value = settings.backupFrequency || 'weekly';
         
         document.getElementById('settingsModal').classList.add('open');
     }
@@ -592,23 +749,30 @@ class UIManager {
             backupFrequency: document.getElementById('backupFrequency').value
         };
         
+        if (!this.goalManager || !this.goalManager.storage) {
+            this.showNotification('Settings not available', 'error');
+            return;
+        }
+
         const data = this.goalManager.storage.load();
         data.settings = { ...data.settings, ...settings };
         this.goalManager.storage.save(data);
         
-        // Apply theme via app helper if available
-        if (window && window.app && typeof window.app.applyTheme === 'function') {
-            window.app.applyTheme(settings.theme);
+        // Apply theme
+        if (settings.theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.body.classList.remove('light-mode');
+        } else if (settings.theme === 'light') {
+            document.body.classList.add('light-mode');
+            document.body.classList.remove('dark-mode');
         } else {
-            if (settings.theme === 'dark') {
+            // Auto mode - check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 document.body.classList.add('dark-mode');
                 document.body.classList.remove('light-mode');
-            } else if (settings.theme === 'light') {
+            } else {
                 document.body.classList.add('light-mode');
                 document.body.classList.remove('dark-mode');
-            } else {
-                document.body.classList.remove('dark-mode');
-                document.body.classList.remove('light-mode');
             }
         }
         
@@ -618,7 +782,8 @@ class UIManager {
 
     // Open modal
     openModal(modalId) {
-        document.getElementById(modalId).classList.add('open');
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.add('open');
     }
 
     // Close modal
@@ -630,25 +795,39 @@ class UIManager {
 
     // Open confirmation modal
     openConfirmModal(title, message, action) {
-        document.getElementById('confirmTitle').textContent = title;
-        document.getElementById('confirmMessage').textContent = message;
-        document.getElementById('confirmAction').onclick = action;
-        document.getElementById('confirmModal').classList.add('open');
+        const confirmTitle = document.getElementById('confirmTitle');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmAction = document.getElementById('confirmAction');
+        const confirmModal = document.getElementById('confirmModal');
+        
+        if (confirmTitle && confirmMessage && confirmAction && confirmModal) {
+            confirmTitle.textContent = title;
+            confirmMessage.textContent = message;
+            confirmAction.onclick = action;
+            confirmModal.classList.add('open');
+        }
     }
 
     // Close confirmation modal
     closeConfirmModal() {
-        document.getElementById('confirmModal').classList.remove('open');
+        const confirmModal = document.getElementById('confirmModal');
+        if (confirmModal) confirmModal.classList.remove('open');
     }
 
     // Scroll to goal form
     scrollToGoalForm() {
-        document.getElementById('goalName').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        document.getElementById('goalName').focus();
+        const goalNameInput = document.getElementById('goalName');
+        if (goalNameInput) {
+            goalNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            goalNameInput.focus();
+        }
     }
 
     // Show notification
     showNotification(message, type = 'info') {
+        const notificationCenter = document.getElementById('notificationCenter');
+        if (!notificationCenter) return;
+        
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         
@@ -678,7 +857,7 @@ class UIManager {
             setTimeout(() => notification.remove(), 300);
         });
         
-        document.getElementById('notificationCenter').prepend(notification);
+        notificationCenter.prepend(notification);
         
         // Auto-remove after 5 seconds
         setTimeout(() => {
@@ -691,6 +870,7 @@ class UIManager {
 
     // Escape HTML to prevent XSS
     escapeHtml(str) {
+        if (str === null || str === undefined) return '';
         return String(str)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -701,11 +881,16 @@ class UIManager {
 
     // Open user profile modal
     openProfile() {
+        if (!this.goalManager || !this.goalManager.storage) {
+            this.showNotification('Profile not available', 'error');
+            return;
+        }
+
         const data = this.goalManager.storage.load();
         const user = data.user || {};
-        const stats = this.goalManager.getStats();
+        const stats = this.goalManager.getStats ? this.goalManager.getStats() : { totalGoals: 0, completionRate: 0 };
         
-        // Guard against missing elements
+        // Fill in profile form with current data
         const profileName = document.getElementById('profileName');
         const profileEmail = document.getElementById('profileEmail');
         const profileRole = document.getElementById('profileRole');
@@ -714,19 +899,12 @@ class UIManager {
         const profilePhone = document.getElementById('profilePhone');
         const profileTimezone = document.getElementById('profileTimezone');
         const profileAvatar = document.getElementById('profileAvatar');
-        const navUserAvatar = document.getElementById('navUserAvatar');
         const profileTotalGoals = document.getElementById('profileTotalGoals');
         const profileCompletionRate = document.getElementById('profileCompletionRate');
         const profileDaysActive = document.getElementById('profileDaysActive');
         
-        if (!profileName || !profileEmail || !profileAvatar) {
-            this.showNotification('Profile elements not found in DOM', 'error');
-            return;
-        }
-        
-        // Fill in profile form with current data
-        profileName.value = user.name || '';
-        profileEmail.value = user.email || '';
+        if (profileName) profileName.value = user.name || '';
+        if (profileEmail) profileEmail.value = user.email || '';
         if (profileRole) profileRole.value = user.role || '';
         if (profileBio) profileBio.value = user.bio || '';
         if (profileLocation) profileLocation.value = user.location || '';
@@ -735,8 +913,7 @@ class UIManager {
         
         // Update profile avatar with initials
         const initials = this.getInitials(user.name || 'PU');
-        profileAvatar.textContent = initials;
-        if (navUserAvatar) navUserAvatar.textContent = initials;
+        if (profileAvatar) profileAvatar.textContent = initials;
         
         // Update profile statistics
         if (profileTotalGoals) profileTotalGoals.textContent = stats.totalGoals;
@@ -744,7 +921,7 @@ class UIManager {
         
         // Calculate days active
         if (profileDaysActive) {
-            const created = new Date(data.created);
+            const created = data.created ? new Date(data.created) : new Date();
             const now = new Date();
             const daysActive = Math.floor((now - created) / (1000 * 60 * 60 * 24));
             profileDaysActive.textContent = daysActive;
@@ -857,5 +1034,4 @@ class UIManager {
     closeProfile() {
         this.closeModal();
     }
-
 }
