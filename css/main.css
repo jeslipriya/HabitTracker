@@ -1178,6 +1178,46 @@ body.light-mode .notification {
 }
 
 body.light-mode input,
+body.light-mode select,
+body.light-mode textarea {
+    background: white;
+    border-color: var(--gray-200);
+    color: var(--dark-color);
+}
+
+body.light-mode input::placeholder,
+body.light-mode textarea::placeholder {
+    color: var(--gray-400);
+}
+
+body.light-mode .empty-state-content i {
+    color: var(--gray-300);
+}
+
+body.light-mode .empty-state-content h3 {
+    color: var(--dark-color);
+}
+
+body.light-mode .empty-state-content p {
+    color: var(--gray-600);
+}
+
+body.light-mode .stat-card {
+    background: white;
+    border-color: var(--gray-200);
+}
+
+body.light-mode .goal-item {
+    background: white;
+}
+
+body.light-mode .modal-content {
+    background: white;
+}
+
+body.light-mode .settings-section h4 {
+    color: var(--dark-color);
+}
 
 /* User Profile Modal Styles */
 .profile-modal {
@@ -1217,6 +1257,7 @@ body.light-mode input,
     border: 4px solid white;
     transition: var(--transition);
     position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .profile-avatar:hover {
@@ -1228,6 +1269,10 @@ body.light-mode input,
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: 12px;
+    font-size: 0.95rem;
+    padding: 10px 16px;
+    border-radius: var(--radius);
 }
 
 #profileForm .form-group {
@@ -1240,17 +1285,35 @@ body.light-mode input,
     gap: 8px;
     font-weight: 600;
     margin-bottom: 8px;
+    color: var(--dark-color);
+    font-size: 0.95rem;
 }
 
 #profileForm label i {
     color: var(--primary-color);
     width: 20px;
+    text-align: center;
 }
 
 #profileForm input,
 #profileForm select,
 #profileForm textarea {
     width: 100%;
+    padding: 10px 12px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+#profileForm input:focus,
+#profileForm select:focus,
+#profileForm textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background-color: rgba(37, 99, 235, 0.02);
 }
 
 /* Profile Statistics */
@@ -1282,6 +1345,58 @@ body.light-mode input,
     color: var(--gray-600);
 }
 
+/* Profile Modal Dark Mode */
+body.dark-mode .profile-modal {
+    background: #1e293b;
+}
+
+body.dark-mode .profile-header {
+    border-bottom-color: #334155;
+}
+
+body.dark-mode #profileForm label {
+    color: #e2e8f0;
+}
+
+body.dark-mode #profileForm input,
+body.dark-mode #profileForm select,
+body.dark-mode #profileForm textarea {
+    background: #0f172a;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+
+body.dark-mode #profileForm input:focus,
+body.dark-mode #profileForm select:focus,
+body.dark-mode #profileForm textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+body.dark-mode #profileForm input::placeholder,
+body.dark-mode #profileForm textarea::placeholder {
+    color: #94a3b8;
+}
+
+body.dark-mode .profile-stats {
+    border-top-color: #334155;
+    border-bottom-color: #334155;
+}
+
+body.dark-mode .profile-stat {
+    background: transparent;
+}
+
+body.dark-mode .profile-stat .stat-label {
+    color: #94a3b8;
+}
+
+body.dark-mode .profile-avatar {
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+}
+
 /* Responsive Profile */
 @media (max-width: 768px) {
     .profile-modal {
@@ -1293,39 +1408,53 @@ body.light-mode input,
     }
 }
 
-/* Dark mode profile styling */
-body.dark-mode .profile-header {
-    border-bottom-color: #334155;
+/* Dark Mode - Additional Components */
+body.dark-mode .achievement-item {
+    background: #334155;
+    color: #e2e8f0;
 }
 
-body.dark-mode .profile-stats {
-    border-top-color: #334155;
-    border-bottom-color: #334155;
+body.dark-mode .achievement-item:hover {
+    background: #475569;
 }
 
-body.dark-mode .profile-stat .stat-label {
+body.dark-mode .achievement-title {
+    color: #e2e8f0;
+}
+
+body.dark-mode .achievement-description {
     color: #94a3b8;
 }
-body.light-mode select,
-body.light-mode textarea {
-    background: white;
-    border-color: var(--gray-200);
-    color: var(--dark-color);
+
+body.dark-mode .deadline-item {
+    border-bottom-color: #334155;
+    color: #e2e8f0;
 }
 
-body.light-mode input::placeholder,
-body.light-mode textarea::placeholder {
-    color: var(--gray-400);
+body.dark-mode .deadline-name {
+    color: #e2e8f0;
 }
 
-body.light-mode .empty-state-content i {
-    color: var(--gray-300);
+body.dark-mode .deadline-date {
+    color: #94a3b8;
 }
 
-body.light-mode .empty-state-content h3 {
-    color: var(--dark-color);
+body.dark-mode .chart-container {
+    background: #1e293b;
+    border-color: #334155;
 }
 
-body.light-mode .empty-state-content p {
-    color: var(--gray-600);
+body.dark-mode .chart-container h4 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .modal-content {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .notification {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
 }

@@ -151,7 +151,6 @@ class UIManager {
     renderDashboard() {
         this.renderStats();
         this.renderGoals();
-        this.renderAchievements();
         this.renderUpcomingDeadlines();
         this.analyticsManager.initialize();
     }
@@ -706,89 +705,139 @@ class UIManager {
         const user = data.user || {};
         const stats = this.goalManager.getStats();
         
+        // Guard against missing elements
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const profileRole = document.getElementById('profileRole');
+        const profileBio = document.getElementById('profileBio');
+        const profileLocation = document.getElementById('profileLocation');
+        const profilePhone = document.getElementById('profilePhone');
+        const profileTimezone = document.getElementById('profileTimezone');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const navUserAvatar = document.getElementById('navUserAvatar');
+        const profileTotalGoals = document.getElementById('profileTotalGoals');
+        const profileCompletionRate = document.getElementById('profileCompletionRate');
+        const profileDaysActive = document.getElementById('profileDaysActive');
+        
+        if (!profileName || !profileEmail || !profileAvatar) {
+            this.showNotification('Profile elements not found in DOM', 'error');
+            return;
+        }
+        
         // Fill in profile form with current data
-        document.getElementById('profileName').value = user.name || '';
-        document.getElementById('profileEmail').value = user.email || '';
-        document.getElementById('profileRole').value = user.role || '';
-        document.getElementById('profileBio').value = user.bio || '';
-        document.getElementById('profileLocation').value = user.location || '';
-        document.getElementById('profilePhone').value = user.phone || '';
-        document.getElementById('profileTimezone').value = user.timezone || '';
+        profileName.value = user.name || '';
+        profileEmail.value = user.email || '';
+        if (profileRole) profileRole.value = user.role || '';
+        if (profileBio) profileBio.value = user.bio || '';
+        if (profileLocation) profileLocation.value = user.location || '';
+        if (profilePhone) profilePhone.value = user.phone || '';
+        if (profileTimezone) profileTimezone.value = user.timezone || '';
         
         // Update profile avatar with initials
         const initials = this.getInitials(user.name || 'PU');
-        document.getElementById('profileAvatar').textContent = initials;
-        document.getElementById('navUserAvatar').textContent = initials;
+        profileAvatar.textContent = initials;
+        if (navUserAvatar) navUserAvatar.textContent = initials;
         
         // Update profile statistics
-        document.getElementById('profileTotalGoals').textContent = stats.totalGoals;
-        document.getElementById('profileCompletionRate').textContent = stats.completionRate + '%';
+        if (profileTotalGoals) profileTotalGoals.textContent = stats.totalGoals;
+        if (profileCompletionRate) profileCompletionRate.textContent = stats.completionRate + '%';
         
         // Calculate days active
-        const created = new Date(data.created);
-        const now = new Date();
-        const daysActive = Math.floor((now - created) / (1000 * 60 * 60 * 24));
-        document.getElementById('profileDaysActive').textContent = daysActive;
+        if (profileDaysActive) {
+            const created = new Date(data.created);
+            const now = new Date();
+            const daysActive = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+            profileDaysActive.textContent = daysActive;
+        }
         
         this.openModal('profileModal');
     }
 
     // Save user profile
     saveProfile() {
-        const name = document.getElementById('profileName').value.trim();
-        const email = document.getElementById('profileEmail').value.trim();
-        const role = document.getElementById('profileRole').value.trim();
-        const bio = document.getElementById('profileBio').value.trim();
-        const location = document.getElementById('profileLocation').value.trim();
-        const phone = document.getElementById('profilePhone').value.trim();
-        const timezone = document.getElementById('profileTimezone').value.trim();
-        
-        // Validate required fields
-        if (!name || !email) {
-            this.showNotification('Please fill in required fields (Name and Email)', 'warning');
-            return;
+        try {
+            const nameEl = document.getElementById('profileName');
+            const emailEl = document.getElementById('profileEmail');
+            
+            if (!nameEl || !emailEl) {
+                this.showNotification('Profile form elements missing', 'error');
+                return;
+            }
+            
+            const name = nameEl.value.trim();
+            const email = emailEl.value.trim();
+            const roleEl = document.getElementById('profileRole');
+            const bioEl = document.getElementById('profileBio');
+            const locationEl = document.getElementById('profileLocation');
+            const phoneEl = document.getElementById('profilePhone');
+            const timezoneEl = document.getElementById('profileTimezone');
+            
+            const role = roleEl ? roleEl.value.trim() : '';
+            const bio = bioEl ? bioEl.value.trim() : '';
+            const location = locationEl ? locationEl.value.trim() : '';
+            const phone = phoneEl ? phoneEl.value.trim() : '';
+            const timezone = timezoneEl ? timezoneEl.value.trim() : '';
+            
+            // Validate required fields
+            if (!name || !email) {
+                this.showNotification('Please fill in required fields (Name and Email)', 'warning');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                this.showNotification('Please enter a valid email address', 'warning');
+                return;
+            }
+            
+            // Update user data in storage
+            const data = this.goalManager.storage.load();
+            if (!data.user) data.user = {};
+            
+            data.user = {
+                name,
+                email,
+                role,
+                bio,
+                location,
+                phone,
+                timezone,
+                avatar: this.getInitials(name),
+                updatedAt: new Date().toISOString()
+            };
+            
+            this.goalManager.storage.save(data);
+            
+            // Update UI
+            this.updateUserInfo();
+            
+            this.showNotification('Profile saved successfully!', 'success');
+            this.closeModal();
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            this.showNotification('Error saving profile. Please try again.', 'error');
         }
-        
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            this.showNotification('Please enter a valid email address', 'warning');
-            return;
-        }
-        
-        // Update user data in storage
-        const data = this.goalManager.storage.load();
-        data.user = {
-            name,
-            email,
-            role,
-            bio,
-            location,
-            phone,
-            timezone,
-            avatar: this.getInitials(name),
-            updatedAt: new Date().toISOString()
-        };
-        
-        this.goalManager.storage.save(data);
-        
-        // Update UI
-        this.updateUserInfo();
-        
-        this.showNotification('Profile saved successfully!', 'success');
-        this.closeModal();
     }
 
     // Change avatar (show initials customization)
     changeAvatar() {
-        const name = document.getElementById('profileName').value.trim();
+        const nameEl = document.getElementById('profileName');
+        const avatarEl = document.getElementById('profileAvatar');
+        
+        if (!nameEl || !avatarEl) {
+            this.showNotification('Avatar elements not found', 'error');
+            return;
+        }
+        
+        const name = nameEl.value.trim();
         if (!name) {
             this.showNotification('Please enter your name first', 'warning');
             return;
         }
         
         const initials = this.getInitials(name);
-        document.getElementById('profileAvatar').textContent = initials;
+        avatarEl.textContent = initials;
         this.showNotification(`Avatar updated to "${initials}"`, 'info');
     }
 

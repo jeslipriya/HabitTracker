@@ -102,26 +102,22 @@ class GoalManager {
     calculateStreak(history) {
         if (!history || history.length === 0) return 0;
         
-        const dates = history.map(date => new Date(date)).sort((a, b) => b - a);
-        let streak = 0;
-        let currentDate = new Date();
-        
         // Sort dates and remove duplicates
-        const uniqueDates = [...new Set(dates.map(d => d.toISOString().split('T')[0]))]
-            .map(d => new Date(d))
-            .sort((a, b) => b - a);
-
+        const uniqueDates = [...new Set(history.map(d => d.split('T')[0]))]
+            .sort()
+            .reverse();
+        
+        if (uniqueDates.length === 0) return 0;
+        
+        let streak = 0;
+        let currentDate = new Date(uniqueDates[0]); // Start from most recent completion, not today
+        
         for (let i = 0; i < uniqueDates.length; i++) {
             const expectedDate = new Date(currentDate);
             expectedDate.setDate(expectedDate.getDate() - i);
+            const expectedDateStr = expectedDate.toISOString().split('T')[0];
             
-            const found = uniqueDates.some(d => 
-                d.getDate() === expectedDate.getDate() &&
-                d.getMonth() === expectedDate.getMonth() &&
-                d.getFullYear() === expectedDate.getFullYear()
-            );
-            
-            if (found) {
+            if (uniqueDates[i] === expectedDateStr) {
                 streak++;
             } else {
                 break;

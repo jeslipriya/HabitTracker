@@ -126,72 +126,136 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add profile modal handlers
     const profileForm = document.getElementById('profileForm');
-    if (profileForm) profileForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        app.ui.saveProfile();
-    });
+    if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            try {
+                app.ui.saveProfile();
+            } catch (error) {
+                console.error('Profile form submit error:', error);
+                app.ui.showNotification('Error saving profile', 'error');
+            }
+        });
+    }
     
     const profileClose = document.getElementById('profileClose');
-    if (profileClose) profileClose.addEventListener('click', () => {
-        app.ui.closeProfile();
-    });
+    if (profileClose) {
+        profileClose.addEventListener('click', () => {
+            try {
+                app.ui.closeProfile();
+            } catch (error) {
+                console.error('Error closing profile:', error);
+            }
+        });
+    }
     
     const profileCancel = document.getElementById('profileCancel');
-    if (profileCancel) profileCancel.addEventListener('click', () => {
-        app.ui.closeProfile();
-    });
+    if (profileCancel) {
+        profileCancel.addEventListener('click', () => {
+            try {
+                app.ui.closeProfile();
+            } catch (error) {
+                console.error('Error canceling profile:', error);
+            }
+        });
+    }
     
     const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-    if (changeAvatarBtn) changeAvatarBtn.addEventListener('click', () => {
-        app.ui.changeAvatar();
-    });
+    if (changeAvatarBtn) {
+        changeAvatarBtn.addEventListener('click', () => {
+            try {
+                app.ui.changeAvatar();
+            } catch (error) {
+                console.error('Error changing avatar:', error);
+                app.ui.showNotification('Error changing avatar', 'error');
+            }
+        });
+    }
     
     // Open profile when clicking user avatar in navigation
     const navUserAvatar = document.getElementById('navUserAvatar');
     if (navUserAvatar) {
         navUserAvatar.addEventListener('click', () => {
-            app.ui.openProfile();
+            try {
+                app.ui.openProfile();
+            } catch (error) {
+                console.error('Error opening profile:', error);
+                app.ui.showNotification('Error opening profile', 'error');
+            }
         });
         navUserAvatar.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                app.ui.openProfile();
+                try {
+                    app.ui.openProfile();
+                } catch (error) {
+                    console.error('Error opening profile via keyboard:', error);
+                }
             }
         });
     }
     
     const resetSettingsBtn = document.getElementById('resetSettingsBtn');
-    if (resetSettingsBtn) resetSettingsBtn.addEventListener('click', () => {
-        app.ui.openConfirmModal(
-            'Reset Settings',
-            'Are you sure you want to reset all settings to defaults?',
-            () => {
-                const data = app.storage.load();
-                data.settings = app.storage.getDefaultData().settings;
-                app.storage.save(data);
-                window.location.reload();
+    if (resetSettingsBtn) {
+        resetSettingsBtn.addEventListener('click', () => {
+            try {
+                app.ui.openConfirmModal(
+                    'Reset Settings',
+                    'Are you sure you want to reset all settings to defaults?',
+                    () => {
+                        try {
+                            const data = app.storage.load();
+                            data.settings = app.storage.getDefaultData().settings;
+                            app.storage.save(data);
+                            window.location.reload();
+                        } catch (error) {
+                            console.error('Error resetting settings:', error);
+                            app.ui.showNotification('Error resetting settings', 'error');
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error('Error opening reset dialog:', error);
             }
-        );
-    });
+        });
+    }
     
     // Add import backup handler
     const importBackupBtn = document.getElementById('importBackupBtn');
-    if (importBackupBtn) importBackupBtn.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                app.ui.openConfirmModal(
-                    'Import Backup',
-                    'This will replace all current data with the backup. Continue?',
-                    () => app.importAppData(file)
-                );
+    if (importBackupBtn) {
+        importBackupBtn.addEventListener('click', () => {
+            try {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    try {
+                        const file = e.target.files[0];
+                        if (file) {
+                            app.ui.openConfirmModal(
+                                'Import Backup',
+                                'This will replace all current data with the backup. Continue?',
+                                () => {
+                                    try {
+                                        app.importAppData(file);
+                                    } catch (error) {
+                                        console.error('Error importing backup:', error);
+                                        app.ui.showNotification('Error importing backup', 'error');
+                                    }
+                                }
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error handling file:', error);
+                        app.ui.showNotification('Error handling file', 'error');
+                    }
+                };
+                input.click();
+            } catch (error) {
+                console.error('Error opening file dialog:', error);
             }
-        };
-        input.click();
-    });
+        });
+    }
     
     // Add theme toggle button
     const themeToggle = document.createElement('button');
