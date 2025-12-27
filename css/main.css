@@ -1408,6 +1408,41 @@ body.dark-mode .profile-avatar {
     }
 }
 
+/* Accessibility & Focus polish */
+button:focus, .btn:focus, input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    border-color: var(--primary-color);
+}
+
+/* User avatar (nav) improvements */
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+}
+
+/* Progress text alignment */
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Make interactive elements more tappable on small screens */
+@media (max-width: 480px) {
+    .btn { padding: 10px 14px; font-size: 0.95rem; }
+    .user-avatar { width: 40px; height: 40px; font-size: 0.9rem; }
+}
+
 /* Dark Mode - Additional Components */
 body.dark-mode .achievement-item {
     background: #334155;
