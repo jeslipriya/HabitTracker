@@ -595,11 +595,11 @@ class UIManager {
         container.innerHTML = achievements.map(achievement => `
             <div class="achievement-item">
                 <div class="achievement-icon" style="background: ${achievement.color === 'gold' ? 'linear-gradient(135deg, var(--gold-color), #f59e0b)' : 'linear-gradient(135deg, var(--accent-color), #dc2626)'}">
-                    <i class="fas fa-${achievement.icon || 'trophy'}"></i>
+                    <i class="fas fa-${this.sanitizeIcon(achievement.icon) }"></i>
                 </div>
                 <div class="achievement-content">
-                    <div class="achievement-title">${achievement.title || ''}</div>
-                    <div class="achievement-description">${achievement.description || ''}</div>
+                    <div class="achievement-title">${this.escapeHtml(achievement.title || '')}</div>
+                    <div class="achievement-description">${this.escapeHtml(achievement.description || '')}</div>
                 </div>
             </div>
         `).join('');
@@ -645,11 +645,11 @@ class UIManager {
         container.innerHTML = deadlines.sort((a, b) => a.daysToTarget - b.daysToTarget).map(deadline => `
             <div class="deadline-item">
                 <div class="deadline-header">
-                    <div class="deadline-name">${deadline.milestone}</div>
-                    <span class="deadline-priority ${deadline.priority}">${deadline.daysToTarget} day${deadline.daysToTarget === 1 ? '' : 's'}</span>
+                    <div class="deadline-name">${this.escapeHtml(deadline.milestone)}</div>
+                    <span class="deadline-priority ${this.escapeHtml(deadline.priority)}">${deadline.daysToTarget} day${deadline.daysToTarget === 1 ? '' : 's'}</span>
                 </div>
                 <div class="deadline-date">
-                    <i class="far fa-calendar"></i> ${deadline.name}
+                    <i class="far fa-calendar"></i> ${this.escapeHtml(deadline.name)}
                 </div>
             </div>
         `).join('');
@@ -883,6 +883,13 @@ class UIManager {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    // Sanitize icon name used in class names (allow letters, numbers, dash)
+    sanitizeIcon(icon) {
+        if (!icon || typeof icon !== 'string') return 'trophy';
+        const clean = icon.replace(/[^a-zA-Z0-9-_]/g, '');
+        return clean || 'trophy';
     }
 
     // Open user profile modal
