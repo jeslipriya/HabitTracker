@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Privacy Policy | GoalTracker</title>
+    <meta name="description" content="Privacy Policy for GoalTracker — what data is stored, how it's used, and how to manage your data.">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Existing project styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/dark-fixes.css">
+</head>
+<body>
+
+<div class="container">
+
+    <nav class="professional-nav">
+        <div class="nav-brand">
+            <i class="fas fa-bullseye"></i>
+            <span>GoalTracker</span>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="dashboard-card mt-5">
+        <div class="card-header">
+            <h3 style="color: white;"><i class="fas fa-user-shield"></i> Privacy Policy</h3>
+        </div>
+
+        <div class="card-body">
+            <p><strong>Last updated:</strong> December 28, 2025</p> <br>
+
+            <p>
+                GoalTracker is a client-side application designed to respect user privacy.
+                We do not collect, transmit, or store personal data on external servers.
+            </p> <br>
+
+            <h4>1. Data Storage</h4>
+            <p>
+                All data entered into GoalTracker - including goals, progress,
+                profile information, and settings - is stored locally in your browser
+                using <code>localStorage</code>.
+            </p> <br>
+
+            <h4>2. Data Collection</h4>
+            <p>
+                We do not collect personal information, analytics data, or usage metrics.
+                Your information never leaves your device.
+            </p> <br>
+
+            <h4>3. Third-Party Libraries</h4>
+            <p>
+                GoalTracker uses third-party libraries such as Chart.js for visualization.
+                These libraries operate entirely within your browser and do not transmit data.
+            </p> <br>
+
+            <h4>4. Data Export & Backup</h4>
+            <p>
+                When you export or import data, all operations occur locally on your device.
+                You retain full ownership and responsibility for your backups.
+            </p> <br>
+
+            <h4>5. Data Removal</h4>
+            <p>
+                You may delete all stored data at any time by clearing your browser’s
+                local storage for this application.
+            </p> <br>
+
+            <h4>6. Changes to This Policy</h4>
+            <p>
+                This privacy policy may be updated to reflect improvements or changes
+                to the application. Updates will be reflected on this page.
+            </p>
+
+            <p class="mt-4">
+                This project is intended for educational and personal productivity use.
+                No warranties or guarantees are provided.
+            </p>
+        </div>
+    </div>
+
+    <footer class="mt-5">
+        <div class="footer-content">
+            <div class="footer-logo">GoalTracker</div>
+            <p>Focused on productivity, not data collection.</p> <br>
+            <div class="footer-copyright">
+                © <span id="footerYear">2025</span> GoalTracker. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+    <script>
+        // keep footer year current
+        (function(){
+            var el = document.getElementById('footerYear');
+            if(el) el.textContent = new Date().getFullYear();
+        })();
+    </script>
+</body>
+</html>

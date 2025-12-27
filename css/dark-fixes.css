@@ -1,0 +1,148 @@
+/* Dark mode contrast fixes - loaded last to override earlier rules */
+body.dark-mode {
+    color: var(--light-color);
+}
+
+/* Ensure primary navigation and brand text are readable */
+body.dark-mode .nav-link,
+body.dark-mode .nav-brand,
+body.dark-mode .user-name,
+body.dark-mode .user-role {
+    color: rgba(255,255,255,0.95);
+}
+
+/* General card and content text */
+body.dark-mode .dashboard-card,
+body.dark-mode .stat-card,
+body.dark-mode .goal-item,
+body.dark-mode .chart-container,
+body.dark-mode .achievement-item,
+body.dark-mode .deadline-item,
+body.dark-mode footer,
+body.dark-mode .modal-content {
+    color: var(--light-color);
+}
+
+/* Secondary / descriptive text slightly muted but readable */
+body.dark-mode .stat-label,
+body.dark-mode .user-role,
+body.dark-mode .achievement-description,
+body.dark-mode .deadline-date,
+body.dark-mode .progress-text span:first-child,
+body.dark-mode .goal-category {
+    color: rgba(248,250,252,0.85);
+}
+
+/* Headings and titles slightly stronger */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode .goal-title,
+body.dark-mode .achievement-title,
+body.dark-mode .footer-logo {
+    color: rgba(255,255,255,0.98);
+}
+
+/* Milestones and minor UI bits */
+body.dark-mode .milestone,
+body.dark-mode .milestone.achieved,
+body.dark-mode .profile-stat .stat-value {
+    color: var(--light-color);
+}
+
+/* Links in footer and other places */
+body.dark-mode a,
+body.dark-mode .footer-links a {
+    color: rgba(179, 205, 255, 0.95);
+}
+
+/* Keep interactive control contrast acceptable */
+body.dark-mode .btn,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    color: var(--light-color);
+}
+
+/* If any icon uses text color inherit, let it remain visible */
+body.dark-mode i { color: rgba(255,255,255,0.9); }
+
+/* Accessibility: ensure notifications text is visible */
+body.dark-mode .notification,
+body.dark-mode .notification .notification-content {
+    color: var(--light-color);
+}
+
+/* Surface/background fixes for components that remained white in dark mode */
+body.dark-mode .stat-card,
+body.dark-mode .chart-container,
+body.dark-mode .achievement-item,
+body.dark-mode .deadline-item,
+body.dark-mode .milestone,
+body.dark-mode .milestones-list .milestone,
+body.dark-mode .dashboard-card,
+body.dark-mode .goal-item,
+body.dark-mode .modal-content,
+body.dark-mode .empty-state-content,
+body.dark-mode .profile-modal {
+    background: rgba(6,10,14,0.45); /* slightly translucent dark surface */
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: none;
+}
+
+/* Ensure stat labels and small descriptive text are visible on these surfaces */
+body.dark-mode .stat-card .stat-label,
+body.dark-mode .stat-card .stat-change,
+body.dark-mode .stat-card .stat-value,
+body.dark-mode .stat-label,
+body.dark-mode .progress-text,
+body.dark-mode .milestone-date,
+body.dark-mode .achievement-description {
+    color: rgba(255,255,255,0.9);
+}
+
+/* Milestone / list items were white with pale text — make them dark and readable */
+body.dark-mode .milestones-list .milestone {
+    background: rgba(255,255,255,0.03);
+    color: var(--light-color);
+}
+
+/* Day buttons: use a dark neutral background and keep completed state vibrant */
+body.dark-mode .day {
+    background: rgba(255,255,255,0.06);
+    color: var(--light-color);
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+body.dark-mode .day.completed {
+    background: linear-gradient(90deg, rgba(16,185,129,1), rgba(34,197,94,1));
+    color: white;
+    border-color: rgba(0,0,0,0.2);
+}
+
+/* Make input-like blocks (progress, cards) darker so pale text shows up */
+body.dark-mode .progress-bar,
+body.dark-mode .progress-fill,
+body.dark-mode .progress-text {
+    color: var(--light-color);
+}
+
+/* Footer links and small text contrast */
+body.dark-mode .stat-value { /* keep numeric gradient but ensure readability */
+    -webkit-text-fill-color: transparent;
+}
+
+/* Buttons and form controls: ensure placeholder and text contrast */
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: rgba(255,255,255,0.55);
+}
+
+body.dark-mode .btn {
+    color: var(--light-color);
+}
+
+/* If specific elements still look off, these debug helpers can be temporary: */
+/* body.dark-mode * { outline: 1px dashed rgba(255,255,255,0.02); } */
+
