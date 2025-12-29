@@ -301,4 +301,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.body.appendChild(themeToggle);
+    // When user clicks "Create Your First Goal" in the empty state,
+    // navigate to the Create New Goal form and focus the first input.
+    const createFirstGoalBtn = document.getElementById('createFirstGoal');
+    if (createFirstGoalBtn) {
+        createFirstGoalBtn.addEventListener('click', () => {
+            const goalForm = document.getElementById('goalForm');
+            if (goalForm) {
+                goalForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const firstInput = document.getElementById('goalName');
+                if (firstInput) firstInput.focus();
+            }
+        });
+    }
+
 });

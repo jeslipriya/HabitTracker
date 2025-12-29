@@ -23,6 +23,10 @@
     --radius-lg: 0.75rem;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -392,7 +396,7 @@ h1 {
     gap: 8px;
     margin-bottom: 10px;
     font-weight: 600;
-    color: var(--dark-color);
+    color: var(--light-color);
 }
 
 .form-group label i {
